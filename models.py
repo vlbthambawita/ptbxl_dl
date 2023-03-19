@@ -68,7 +68,7 @@ class CNN(nn.Module):
         out = self.fc2(out)
         out = self.dropout(out)
         out = self.out(out)
-        #out = self.sigmoid(out)
+        out = self.sigmoid(out)
         return out
         
 class CNN2(nn.Module):

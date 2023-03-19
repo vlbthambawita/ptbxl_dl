@@ -22,7 +22,7 @@ class ECGModel(pl.LightningModule):
         # Exports the hyperparameters to a YAML file, and create "self.hparams" namespace
         self.save_hyperparameters()
 
-        self.loss_module = nn.BCEWithLogitsLoss()
+        self.loss_module = nn.BCELoss() #nn.BCEWithLogitsLoss()
          
          # Define the model
         hidden_dim = 32
