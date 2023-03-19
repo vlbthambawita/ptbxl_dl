@@ -52,11 +52,11 @@ class CNN(nn.Module):
         self.fc2 = nn.Linear(64, 64) # second fully connected layer with 64 input features and 64 output features
         self.dropout = nn.Dropout(dropout) # dropout layer
         self.out = nn.Linear(64, Z_input_dim) # output layer with 64 input features and 5 outputs corresponding to the diagnostic superclasses.
-        self.softmax = nn.Softmax(dim=1) # activation function for output layer (softmax)
+        self.sigmoid = nn.Sigmoid() # activation function for output layer (softmax)
 
     # forward method that performs the forward pass of the input data through the layers of the model
     def forward(self, x):
-        out = self.conv1(x.transpose(1, 2))
+        out = self.conv1(x)
         out = self.relu1(out)
         out = self.dropout1(out)
         out = self.conv2(out)
@@ -68,7 +68,7 @@ class CNN(nn.Module):
         out = self.fc2(out)
         out = self.dropout(out)
         out = self.out(out)
-        out = self.softmax(out)
+        #out = self.sigmoid(out)
         return out
         
 class CNN2(nn.Module):

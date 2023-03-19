@@ -4,6 +4,8 @@ import numpy as np
 import wfdb
 import ast
 import os
+from torchvision import transforms
+import torch
 
 import lightning.pytorch as pl
 
@@ -30,7 +32,7 @@ class PTBXL(Dataset):
             self.y = y.loc[y.strat_fold.isin(self.folds)]
 
              # Load scp_statements.csv for diagnostic aggregation
-            agg_df = pd.read_csv(data_root+'scp_statements.csv', index_col=0)
+            agg_df = pd.read_csv(os.path.join(data_root, "scp_statements.csv"), index_col=0)
             self.agg_df = agg_df[agg_df.diagnostic == 1]
 
             # Apply diagnostic superclass
@@ -108,28 +110,63 @@ class PTBXL(Dataset):
         #print(ecg.shape)
         ecg = ecg.transpose()
         #print(ecg.shape)
+        ecg = torch.from_numpy(ecg).to(torch.float32)
+        class_encoded = torch.from_numpy(class_encoded).to(torch.float32)
 
-        if self.transform:
+        if self.transform: # Not in use
             ecg = self.transform(ecg)
         
+        #print("ecg_shape=", ecg.shape)
         sample = {"ecg":ecg, "class":class_encoded }
         return sample
 
 
+
+
 class PTBXLDataModule(pl.LightningDataModule):
-    def __init__(self, root_dir):
+    def __init__(self, root_dir, train_folds:list =[1,2,3,4,5], 
+                val_folds:list = [6,7,8], 
+                test_folds:list = [9, 10], 
+                predict_folds:list = [6, 7, 8, 9, 10],
+                sampling_rate:int = 100,
+                bs = 32
+                ):
         super().__init__()
 
-        self.transform = transforms.Compose([transforms.ToTensor()])
+        self.transform = None #transforms.Compose([transforms.ToTensor()])
+        self.root_dir = root_dir
+        self.train_folds = train_folds
+        self.val_folds = val_folds
+        self.test_folds = test_folds
+        self.predict_folds = predict_folds
+        self.bs = bs
 
     def prepare_data(self):
         pass
 
     def setup(self, stage:str):
-        pass
+        if stage == "fit":
+           self.ptbxl_train = PTBXL(self.root_dir, folds=self.train_folds, transform=self.transform)
+           self.ptbxl_val = PTBXL(self.root_dir, folds=self.val_folds, transform=self.transform)
 
+        if stage == "test":
+            self.ptbxl_test = PTBXL(self.root_dir, folds=self.test_folds, transform=self.transform)
+
+        if stage == "predict":
+            self.ptbxl_predict = PTBXL(self.root_dir, folds=self.predict_folds, transform=self.transform)
+
+    def train_dataloader(self):
+        return DataLoader(self.ptbxl_train, batch_size=self.bs)
+
+    def val_dataloader(self):
+        return DataLoader(self.ptbxl_val, batch_size=self.bs)
+
+    def test_dataloader(self):
+        return DataLoader(self.ptbxl_test, batch_size=self.bs)
+
+    def predict_dataloader(self):
+        return DataLoader(self.ptbxl_predict, batch_size=self.bs)
     
-
 
 
 if __name__=="__main__":
