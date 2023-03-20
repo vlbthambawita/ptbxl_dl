@@ -61,7 +61,7 @@ trainer:
       logging_interval: epoch
       log_momentum: true
   fast_dev_run: false
-  max_epochs: 50
+  max_epochs: 75
   min_epochs: null
   max_steps: -1
   min_steps: null
@@ -97,25 +97,31 @@ model:
   optimizer_hparams:
     lr: 0.001
   lr_scheduler_hparams:
-    step_size: 1
+    step_size: 25
   prediction_threshold: 0.5
 data:
   root_dir: /work/vajira/data/ptbxl/ptbxl
   train_folds:
   - 1
   - 2
-  val_folds:
-  - 6
-  test_folds:
-  - 9
-  - 10
-  predict_folds:
+  - 3
+  - 4
+  - 5
   - 6
   - 7
+  val_folds:
   - 8
   - 9
   - 10
-  sampling_rate: 500
+  test_folds:
+  - 8
+  - 9
+  - 10
+  predict_folds:
+  - 8
+  - 9
+  - 10
+  sampling_rate: 100
   bs: 32
 wandb_name: ''
 wandb_entity: simulamet_mlc

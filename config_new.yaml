@@ -58,7 +58,7 @@ model:
     step_size: 25
   prediction_threshold: 0.5
 data:
-  root_dir: null
+  root_dir: /work/vajira/data/ptbxl/ptbxl
   train_folds:
   - 1
   - 2
