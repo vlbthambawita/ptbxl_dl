@@ -27,6 +27,8 @@ share/python-wheels/
 *.egg
 MANIFEST
 lightning_logs/
+output/
+wandb/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template

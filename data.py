@@ -29,18 +29,20 @@ class PTBXL(Dataset):
             self.verbose = verbose
             self.transform = transform
 
-            self.y = y.loc[y.strat_fold.isin(self.folds)]
+            y = y.loc[y.strat_fold.isin(self.folds)]
 
              # Load scp_statements.csv for diagnostic aggregation
             agg_df = pd.read_csv(os.path.join(data_root, "scp_statements.csv"), index_col=0)
             self.agg_df = agg_df[agg_df.diagnostic == 1]
 
             # Apply diagnostic superclass
-            self.y.scp_codes = self.y.scp_codes.apply(lambda x: ast.literal_eval(x))
-            self.y['diagnostic_superclass'] = self.y.scp_codes.apply(self.aggregate_diagnostic)
+            y.scp_codes = y.scp_codes.apply(lambda x: ast.literal_eval(x))
+            y['diagnostic_superclass'] = y.scp_codes.apply(self.aggregate_diagnostic)
 
             # Convert to Class numbers
-            self.y["class_ids"] = self.y.diagnostic_superclass.apply(self.map_class_num)
+            y["class_ids"] = y.diagnostic_superclass.apply(self.map_class_num)
+
+            self.y = y
 
             if self.verbose:
                 print("unique super classes=", self.agg_df.diagnostic_class.unique())
