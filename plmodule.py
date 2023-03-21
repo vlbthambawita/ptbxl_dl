@@ -14,7 +14,9 @@ class ECGModel(pl.LightningModule):
                 optimizer_name = "Adam",
                 optimizer_hparams = {"lr":0.0001},
                 lr_scheduler_hparams = {"step_size": 1},
-                prediction_threshold = 0.5
+                prediction_threshold = 0.5,
+                hidden_dim = 32,
+                dropout = 0.2
                 ):
         
         super().__init__()
@@ -26,8 +28,8 @@ class ECGModel(pl.LightningModule):
         self.loss_module = nn.BCELoss() #nn.BCEWithLogitsLoss()
          
          # Define the model
-        hidden_dim = 32
-        dropout = 0.2
+        #hidden_dim = 32
+        #dropout = 0.2
         self.model = CNN(12, 5, hidden_dim, dropout)
 
         #self.training_step_outputs = []
