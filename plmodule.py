@@ -1,8 +1,9 @@
 import lightning.pytorch as pl
-from models import CNN
+from models import * # to get the class name from the config
 import torch.nn as nn
 import torch.optim as optim
 import torch
+import ast
 
 
 
@@ -15,8 +16,8 @@ class ECGModel(pl.LightningModule):
                 optimizer_hparams = {"lr":0.0001},
                 lr_scheduler_hparams = {"step_size": 1},
                 prediction_threshold = 0.5,
-                hidden_dim = 32,
-                dropout = 0.2
+                model_class = None,
+                model_param = {"input_channels": 12, "output_dim":5, "hidden_dim": 32, "dropout": 0.2}
                 ):
         
         super().__init__()
@@ -30,7 +31,8 @@ class ECGModel(pl.LightningModule):
          # Define the model
         #hidden_dim = 32
         #dropout = 0.2
-        self.model = CNN(12, 5, hidden_dim, dropout)
+        #self.model = CNN(input_channels, output_dim, hidden_dim, dropout)
+        self.model = eval(model_class)(**model_param)
 
         #self.training_step_outputs = []
         self.validation_step_outputs_acc = []
@@ -68,7 +70,7 @@ class ECGModel(pl.LightningModule):
         loss = self.loss_module(pred, gt)
 
         
-        acc = ((pred > 0.5) == gt).float().mean()
+        acc = ((pred > self.prediction_threshold) == gt).float().mean()
         #print(ecg.shape)
         #print("gt_shape=", gt.shape)
         self.log("val_loss", loss, prog_bar=True, on_epoch=True, sync_dist=True, logger=True)
